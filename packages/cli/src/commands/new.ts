@@ -143,6 +143,12 @@ export class New extends Command {
         choices: formChoices,
       })
 
+      const isAuthTail: any = await this.enquirer.prompt({
+        type: "text",
+        name: "isAuthTail",
+        message: "Use Auth Tail (Authentication with Tailwind CSS)? y/n",
+      })
+
       const {"dry-run": dryRun, "skip-install": skipInstall, npm} = flags
       const needsInstall = dryRun || skipInstall
       const postInstallSteps = [`cd ${args.name}`]
@@ -158,16 +164,14 @@ export class New extends Command {
         version: this.config.version,
         skipInstall,
         skipGit: flags["no-git"],
+        isAuthTail: isAuthTail.isAuthTail === "y",
         onPostInstall: async () => {
           const spinner = log.spinner(log.withBrand("Initializing SQLite database")).start()
 
           try {
             // Required in order for DATABASE_URL to be available
             require("dotenv-expand")(require("dotenv-flow").config({silent: true}))
-            const result = await runPrisma(
-              ["migrate", "dev", "--name", "Initial migration"],
-              true,
-            )
+            const result = await runPrisma(["migrate", "dev", "--name", "Initial migration"], true)
             if (!result) throw new Error()
 
             spinner.succeed()

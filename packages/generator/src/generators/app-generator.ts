@@ -20,6 +20,7 @@ export interface AppGeneratorOptions extends GeneratorOptions {
   skipInstall: boolean
   skipGit: boolean
   form: "React Final Form" | "React Hook Form" | "Formik"
+  isAuthTail: boolean
   onPostInstall?: () => Promise<void>
 }
 
@@ -86,6 +87,8 @@ export class AppGenerator extends Generator<AppGeneratorOptions> {
     this.fs.delete(this.destinationPath("_forms"))
 
     this.fs.writeJSON(this.destinationPath("package.json"), pkg)
+
+    spawn("blitz", ["install", "auth-tail"])
   }
 
   async postWrite() {
